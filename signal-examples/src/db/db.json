@@ -1,0 +1,32 @@
+{
+  "employees": [
+    {
+      "id": "01af",
+      "firstname": "Dave Dan",
+      "lastname": "Torrez",
+      "email": "ada@fas.com",
+      "phoneno": "76432323a",
+      "address": "dassd",
+      "iscontract": true
+    },
+    {
+      "id": "3c8a",
+      "firstname": "Elias",
+      "lastname": "Alvarez",
+      "email": "elias@gmail.com",
+      "phoneno": "7932898",
+      "address": "asdsda",
+      "iscontract": true
+    },
+    {
+      "id": "3064",
+      "firstname": "Juan Jose",
+      "lastname": "Torrez Navarro",
+      "email": "juan@gmail.com",
+      "phoneno": "784392",
+      "address": "ajsdk",
+      "iscontract": true
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
