@@ -20,7 +20,10 @@ This project is focus on learning angular moderm.
           - patchValue(): replace any properties defined in the object that have changed
         - Form array ([Dimanic Forms](https://angular.dev/guide/forms/reactive-forms#creating-dynamic-forms))
 
-      - Form validation: define validators as functions that receive a controls
+      - [Form validation](https://angular.dev/guide/forms/form-validation#validating-input-in-reactive-forms): define validators as functions that receive a controls
+        - Sync validators
+        - Async validators
+
     - Template-driven
       - NgModel (two-way-binding)
       - FormControl
