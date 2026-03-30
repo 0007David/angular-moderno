@@ -1,15 +1,21 @@
+import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Validators, FormBuilder, FormGroup, FormControl, ReactiveFormsModule, FormArray, ValueChangeEvent, StatusChangeEvent, PristineChangeEvent, TouchedChangeEvent, FormResetEvent, FormSubmittedEvent } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, FormControl, ReactiveFormsModule, FormArray, ValueChangeEvent, StatusChangeEvent, PristineChangeEvent, TouchedChangeEvent, FormResetEvent, FormSubmittedEvent, ValidatorFn, AbstractControl } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs';
 
+interface Item {
+    id: number;
+    title: string;
+}
+
 @Component({
     selector: 'app-form-reactive',
-    imports: [ReactiveFormsModule, FormsModule],
+    imports: [ReactiveFormsModule, FormsModule, CommonModule],
     template: `
         <p>form-reactive works!</p>
-        <form class="form">
+        <form class="form" style="display: none;">
             <!-- Setup in reactive forms -->
             <label for="color">Setup in reactive forms:</label>
             Favorite Color: <input type="text" name="color" id="color" [formControl]="favoriteColorControl" />
@@ -20,9 +26,8 @@ import { filter } from 'rxjs';
             <label for="color1">Setup in template-driven forms:</label>
             Favorite Color: <input type="text" name="color1" id="color1" [(ngModel)]="favoriteColor" />
             <p>{{favoriteColor()}}</p>
-
     </form>
-    <div class="form-group" >
+    <div class="form-group" style="display: none;">
         <h1>Grouping form controls</h1>
         <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
             <label for="first-name">First Name: </label>
@@ -57,6 +62,19 @@ import { filter } from 'rxjs';
             <button type="submit" [disabled]="!profileForm.valid">Submit</button>
         </form>
     </div>
+    <form [formGroup]="demoForm">
+        <h1>for Dinamic</h1>
+        <div formArrayName="demoArray"
+            *ngFor="let arrayItem of arrayItems; let i=index">
+
+            <input [id]="arrayItem.id" type="checkbox"
+                [formControl]="demoArray.controls[i]">
+
+            <label [for]="arrayItem.id" class="array-item-title">
+                {{arrayItem.title}}</label>
+
+        </div>
+        </form>
     `,
     styleUrl: './form-reactive.css',
 })
@@ -68,11 +86,18 @@ export class FormReactive {
 
     private formBuilder = inject(FormBuilder);
 
+    demoForm!: FormGroup;
+
+    arrayItems!: Item[];
+
     updateColor() {
         this.favoriteColorControl.setValue('Blue');
     }
 
     constructor() {
+        this.demoForm = this.formBuilder.group({
+            demoArray: this.formBuilder.array([], this.minSelectedCheckboxes())
+        });
         // make sure the component notifies Angular to run change detection
         this.profileForm.valueChanges
             .pipe(takeUntilDestroyed())
@@ -102,6 +127,53 @@ export class FormReactive {
         //         console.log('Form was submitted');
         //     }
         // });
+    }
+
+
+    minSelectedCheckboxes(): ValidatorFn {
+        const validator: ValidatorFn = (control: AbstractControl) => {
+            const formArray = control as FormArray;
+
+            const selectedCount = formArray.controls
+                .map(control => control.value)
+                .reduce((prev, next) => next ? prev + 1 : prev, 0);
+
+            return selectedCount >= 1 ? null : { notSelected: true };
+        };
+
+        return validator;
+    }
+
+    ngOnInit() {
+        this.arrayItems = [
+            {
+                id: 1, title: 'Title 1'
+            },
+            {
+                id: 2, title: 'Title 2'
+            },
+            {
+                id: 3, title: 'Title 3'
+            },
+            {
+                id: 4, title: 'Title 4'
+            }
+        ];
+    }
+    get demoArray(): FormArray<FormControl<boolean | null>> {
+
+        return this.demoForm.get('demoArray') as FormArray;
+
+    }
+
+    addItem(item: Item) {
+        this.arrayItems.push(item);
+        this.demoArray.push(this.formBuilder.control(false));
+    }
+
+    removeItem() {
+        this.arrayItems.pop();
+        this.demoArray.removeAt(this.demoArray.length - 1);
     }
 
 
